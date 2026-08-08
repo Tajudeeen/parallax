@@ -11,14 +11,16 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "dev": "npm run dev --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
+    "test": "vitest run",
     "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "tsc -b --verbose"
+    "typecheck": "tsc -b --verbose",
+    "test:unit": "vitest run"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
     "drizzle-kit": "^0.31.10",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
   },
   "engines": {
     "node": ">=18"

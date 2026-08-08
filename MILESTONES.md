@@ -89,10 +89,12 @@ API hardening (completed), remaining items flagged below.
 - **Structured access logging + request correlation.** A `requestContext` + `accessLog` middleware pair attaches an `X-Request-Id` (echoed in the response) and emits one JSON access-log line per request with method, path, status, and duration, so a single request can be traced across packages.
 - **Migration-on-boot.** `DatabaseClient.ensureSchema()` runs idempotent `CREATE TABLE IF NOT EXISTS` for all five tables on every boot, so a fresh Postgres actually starts the app instead of requiring a manual migration step.
 
+- **Automated test suite + CI.** Added `vitest` with a root config that aliases every `@parallax/*` package to its TypeScript source, so unit tests run against source without a prior build. 15 tests across 3 files cover the engines (Atlas decomposition, Prism statistics + outlier detection, Sentinel rule validation, Echo prose), the AI layer (`optimizeContext` budgeting + `AIRouter` primary/fallback behavior with a mock fetch), and the Orchestrator (task routing, unknown-engine propagation, DataHub context threading, and multi-step `plan-and-explain` workflow). All 15 pass. A GitHub Actions `ci.yml` runs `npm ci` → typecheck → build → `vitest run` on every push/PR to `main`.
+
+- **Containerization.** `apps/api/Dockerfile` (multi-stage: build all workspaces, prune dev deps, run the compiled server) and `apps/web/Dockerfile` (build the Vite bundle, serve via nginx with SPA fallback + `/api/` reverse proxy to the API). `docker-compose.yml` brings up `postgres` (with healthcheck), `api` (depends on a healthy Postgres, runs `ensureSchema()` on boot, has a `/readyz` healthcheck), and `web` (ports 8080). `.dockerignore` keeps build context lean.
+
 **Verified (ad-hoc harness, no Postgres needed):** config validation flags prod misconfig and stays clean for dev; rate limiter returns 429 past the ceiling; X-Request-Id is set on responses. Full `tsc -b` and `vite build` are green.
 
-**Still not done (flagged honestly):**
-- No automated test suite / CI yet — verification was ad-hoc scripts, not a committed suite.
-- No containerization (Dockerfile / docker-compose) — "deploy" is still manual.
-- `apps/web` runtime was never rendered in a real browser (no headless browser in sandbox); build/bundle correctness only.
+**Remaining (flagged honestly):**
+- `apps/web` runtime was never rendered in a real browser (no headless browser in sandbox); build/bundle correctness only. A real `npm run dev` + browser check is still worth doing before calling the frontend fully done.
 
