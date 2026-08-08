@@ -95,6 +95,11 @@ API hardening (completed), remaining items flagged below.
 
 **Verified (ad-hoc harness, no Postgres needed):** config validation flags prod misconfig and stays clean for dev; rate limiter returns 429 past the ceiling; X-Request-Id is set on responses. Full `tsc -b` and `vite build` are green.
 
-**Remaining (flagged honestly):**
-- `apps/web` runtime was never rendered in a real browser (no headless browser in sandbox); build/bundle correctness only. A real `npm run dev` + browser check is still worth doing before calling the frontend fully done.
+**Live verification (this session):**
+- **API boot validation proven for real.** Running the compiled `apps/api/dist/index.js` against an unreachable DB in `NODE_ENV=production` correctly refuses to start and exits non-zero with three clear structured errors (localhost DB, empty AI key, localhost web origin). In `NODE_ENV=development` it bypasses the guards and reaches the real connect path, failing there as expected. This confirms the M6 fail-fast hardening actually fires.
+- **Web app rendered in a real browser.** Added a Playwright e2e suite (`tests/e2e/web-smoke.spec.ts`, run via `npm run test:e2e`) that builds the web app, serves it with `vite preview`, and loads it in headless Chromium: the SPA mounts real content into `#root` (no `pageerror`, no console errors), and `/login` `/register` `/dashboard` navigate without client-side crashes. **2/2 e2e tests pass.**
+
+**Remaining / blocked (flagged honestly):**
+- **A full live boot against a real Postgres could not be performed in this sandbox** — there is no Docker daemon (Docker Desktop not installed) and no Postgres binaries. The `docker-compose.yml` path is therefore unexercised here; it should be run on a machine with Docker to confirm end-to-end (Postgres → `ensureSchema()` → API → real engine + AI call). The reproducible command is `docker compose up --build` from the repo root with `AI_API_KEY`/`OPENAI_API_KEY` supplied.
+- Engine `route()` and workflows were exercised through unit tests (15/15) and the e2e proves the frontend shell; a browser-driven click-through of register → login → run-an-engine against a live backend is the last unverified path.
 
