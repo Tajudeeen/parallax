@@ -1,0 +1,23 @@
+{
+  "name": "@parallax/database",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "node dist/migrate.js"
+  },
+  "dependencies": {
+    "@parallax/config": "0.1.0",
+    "@parallax/shared": "0.1.0",
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.22.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.3"
+  }
+}

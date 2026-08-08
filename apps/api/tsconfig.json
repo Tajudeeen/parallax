@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "noEmit": false
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/orchestrator" },
+    { "path": "../../packages/datahub" },
+    { "path": "../../packages/database" },
+    { "path": "../../packages/config" },
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/types" },
+    { "path": "../../packages/engines/atlas" },
+    { "path": "../../packages/engines/prism" },
+    { "path": "../../packages/engines/sentinel" },
+    { "path": "../../packages/engines/echo" }
+  ]
+}

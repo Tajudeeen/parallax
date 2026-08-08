@@ -1,0 +1,59 @@
+@import "./tokens.css";
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--surface-void);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+code,
+.mono {
+  font-family: var(--font-mono);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--signal-ready);
+}
+
+/* Visible keyboard focus everywhere, non-negotiable */
+:focus-visible {
+  outline: 2px solid var(--signal-ready);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--signal-ready-dim);
+  color: var(--text-primary);
+}

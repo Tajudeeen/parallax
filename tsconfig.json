@@ -1,0 +1,17 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/types" },
+    { "path": "packages/config" },
+    { "path": "packages/shared" },
+    { "path": "packages/database" },
+    { "path": "packages/ai" },
+    { "path": "packages/datahub" },
+    { "path": "packages/engines/atlas" },
+    { "path": "packages/engines/prism" },
+    { "path": "packages/engines/sentinel" },
+    { "path": "packages/engines/echo" },
+    { "path": "packages/orchestrator" },
+    { "path": "apps/api" }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "parallax",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Parallax: modular AI operating system with a unified data intelligence layer.",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/engines/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "tsc -b --verbose"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

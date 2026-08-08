@@ -1,0 +1,35 @@
+{
+  "name": "@parallax/api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@parallax/config": "0.1.0",
+    "@parallax/database": "0.1.0",
+    "@parallax/datahub": "0.1.0",
+    "@parallax/ai": "0.1.0",
+    "@parallax/engine-atlas": "0.1.0",
+    "@parallax/engine-echo": "0.1.0",
+    "@parallax/engine-prism": "0.1.0",
+    "@parallax/engine-sentinel": "0.1.0",
+    "@parallax/orchestrator": "0.1.0",
+    "@parallax/shared": "0.1.0",
+    "@parallax/types": "0.1.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.5",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10"
+  }
+}

@@ -1,0 +1,17 @@
+{
+    "name": "@parallax/ai",
+    "version": "0.1.0",
+    "private": true,
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc -b",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@parallax/types": "0.1.0",
+        "@parallax/config": "0.1.0",
+        "@parallax/shared": "0.1.0",
+        "@parallax/database": "0.1.0"
+    }
+}
