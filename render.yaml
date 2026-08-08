@@ -1,0 +1,83 @@
+# Render blueprint for Parallax.
+# Deploy: push this repo to GitHub, then in Render "New" -> "Blueprint" -> connect repo.
+# NOTE: the API uses runtime: docker, which requires the Starter plan ($7/mo) on Render.
+# For the free tier, use the Node-runtime alternative shown in RENDER-DEPLOY.md
+# (comment out this api block and use the commented block at the bottom).
+
+services:
+  # --- Managed Postgres (auto-injects DATABASE_URL into the api service) ---
+  - type: postgres
+    name: parallax-db
+    databaseName: parallax
+    user: parallax
+    plan: free
+    # The API's ensureSchema() creates all tables on boot, so no manual migration step.
+
+  # --- API: long-running Node process (Docker) ---
+  - type: web
+    name: parallax-api
+    runtime: docker
+    dockerfilePath: apps/api/Dockerfile
+    plan: starter
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: parallax-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true          # Render generates + stores a secret once
+      - key: PORT
+        value: "4000"
+      - key: AI_PROVIDER
+        value: anthropic
+      - key: AI_API_KEY
+        sync: false                  # set this manually in the Render dashboard
+      - key: OPENAI_API_KEY
+        sync: false                  # optional, for AIRouter fallback
+      - key: WEB_ORIGIN
+        fromService:
+          name: parallax-web
+          property: url              # e.g. https://parallax-web.onrender.com
+
+  # --- Web: static SPA built from apps/web/dist ---
+  - type: static
+    name: parallax-web
+    buildCommand: npm install && npm run build --workspace @parallax/web
+    staticPublishPath: apps/web/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://parallax-api.onrender.com   # your api service URL
+
+# ============================================================================
+# FREE-TIER ALTERNATIVE (no Docker): replace the parallax-api block above with:
+#
+#   - type: web
+#     name: parallax-api
+#     runtime: node
+#     plan: free
+#     buildCommand: npm install && npm run build
+#     startCommand: node apps/api/dist/index.js
+#     healthCheckPath: /healthz
+#     envVars:
+#       - key: NODE_ENV
+#         value: production
+#       - key: DATABASE_URL
+#         fromDatabase:
+#           name: parallax-db
+#           property: connectionString
+#       - key: JWT_SECRET
+#         generateValue: true
+#       - key: PORT
+#         value: "4000"
+#       - key: AI_PROVIDER
+#         value: anthropic
+#       - key: AI_API_KEY
+#         sync: false
+#       - key: WEB_ORIGIN
+#         fromService:
+#           name: parallax-web
+#           property: url
+# ============================================================================
