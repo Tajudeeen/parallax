@@ -9,7 +9,7 @@
     "packages/engines/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "tsc -b && npm run build --workspace @parallax/web",
     "dev": "npm run dev --workspaces --if-present",
     "test": "vitest run",
     "lint": "npm run lint --workspaces --if-present",
