@@ -6,3 +6,7 @@ dist/
 *.log
 .DS_Store
 .vscode/
+# Playwright artifacts
+test-results/
+playwright-report/
+blob-report/
