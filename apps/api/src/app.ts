@@ -8,6 +8,8 @@ import { createTasksRouter } from "./routes/tasks.js";
 import { createAiRouter } from "./routes/ai.js";
 import { createWorkflowsRouter } from "./routes/workflows.js";
 import { errorHandler } from "./middleware/error-handler.js";
+import { requestContext, accessLog } from "./middleware/access-log.js";
+import { aiRateLimiter } from "./middleware/rate-limit.js";
 
 export function buildApp(orchestrator: Orchestrator): Express {
   const app = express();
@@ -15,11 +17,17 @@ export function buildApp(orchestrator: Orchestrator): Express {
   const webOrigin = getConfig().webOrigin;
   app.use(cors({ origin: webOrigin, credentials: true }));
   app.use(express.json());
+
+  // Correlation id + one structured access log line per request.
+  app.use(requestContext);
+  app.use(accessLog);
+
   app.use(healthRouter);
   app.use(authRouter);
   app.use(createTasksRouter(orchestrator));
-  app.use(createAiRouter());
-  app.use(createWorkflowsRouter(orchestrator));
+  // The AI layer calls paid external providers: rate-limit it.
+  app.use("/ai", aiRateLimiter, createAiRouter());
+  app.use("/workflows", aiRateLimiter, createWorkflowsRouter(orchestrator));
 
   // Must be registered last: Express only treats a 4-arg handler as an
   // error handler when it's added after every other middleware and route.

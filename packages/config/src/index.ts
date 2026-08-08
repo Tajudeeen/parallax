@@ -51,3 +51,36 @@ export function getConfig(): ParallaxConfig {
 export function __resetConfigForTests(): void {
   cached = null;
 }
+
+
+/**
+ * Fail-fast validation for production boots. In development/test the
+ * config's built-in defaults (localhost Postgres, empty AI keys) are fine,
+ * but a production process pointing at a default localhost database URL or
+ * missing provider keys is a misconfiguration that should surface as a clear
+ * error at startup, not as a cryptic connect-time crash later.
+ *
+ * Returns a list of human-readable problems. Empty list means OK.
+ */
+export function validateConfigForEnv(config: ParallaxConfig = getConfig()): string[] {
+  const problems: string[] = [];
+
+  if (config.nodeEnv === "production") {
+    if (!config.databaseUrl || config.databaseUrl.includes("localhost")) {
+      problems.push(
+        "DATABASE_URL must point at a real Postgres instance in production (got a localhost/default value).",
+      );
+    }
+    if (config.aiProvider === "anthropic" && !config.aiApiKey) {
+      problems.push("AI_PROVIDER=anthropic but AI_API_KEY is empty; the AI layer will be unavailable.");
+    }
+    if (config.aiProvider === "openai" && !config.openaiApiKey) {
+      problems.push("AI_PROVIDER=openai but OPENAI_API_KEY is empty; the AI layer will be unavailable.");
+    }
+    if (!config.webOrigin || config.webOrigin.includes("localhost")) {
+      problems.push("WEB_ORIGIN should be the real frontend origin in production.");
+    }
+  }
+
+  return problems;
+}

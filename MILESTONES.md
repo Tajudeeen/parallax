@@ -78,4 +78,21 @@ M4 was marked complete in this file, but the workspace did **not** actually buil
 - **Agent workflows are now real.** `@parallax/orchestrator` gained a `WorkflowRunner` + `WorkflowDefinition` types (`@parallax/types`): a workflow is an ordered sequence of engine steps where each step's output is threaded into the next, all executed through the Orchestrator's existing `route()` path (so DataHub context, token budgets, and memory writes are identical to a single task). `Orchestrator.runWorkflow()` and `POST /workflows/:name/run` (+ `GET /workflows` to list) expose it. Two built-in workflows ship: `plan-and-explain` (Atlas → Echo) and `validate-and-report` (Sentinel → Echo, conditionally skipping the Echo step when there's nothing to report). Verified with an ad-hoc harness across real engines: multi-step composition runs, step outputs thread correctly, conditional skip works, and failure of any step fails the run.
 - Remaining M5 work per the original spec: richer memory systems (the unified memory layer behind workflows) and a second AI provider to exercise `AIRouter` fallback.
 
-## Milestone 6: Production Readiness — not started
+## Milestone 6: Production Readiness — in progress
+
+API hardening (completed), remaining items flagged below.
+
+- **Health probes split into liveness and readiness.** `GET /healthz` is a pure liveness check (process up, never touches dependencies so a degraded DB doesn't get the process killed). `GET /readyz` probes Postgres (`select 1`) and returns `503 {status:"not_ready"}` when the database is unreachable, so a load balancer only routes to a healthy instance.
+- **Graceful shutdown with request draining.** `index.ts` now tracks in-flight requests and, on `SIGINT`/`SIGTERM`, stops accepting new connections, waits up to 10s for in-flight requests to finish, then closes the orchestrator and database connection before exiting. No more `process.exit(0)` cutting live requests mid-flight.
+- **Boot-time config validation (fail fast).** `validateConfigForEnv()` runs before connect; in `production` it refuses to start with a clear log line if `DATABASE_URL` is a localhost/default value, if the selected AI provider has no key, or if `WEB_ORIGIN` is still localhost. The previous behavior booted pointing at a nonexistent DB and failed cryptically at connect time.
+- **Rate limiting on paid endpoints.** `express-rate-limit` (default 20 req/min per IP, env-tunable) guards `/ai` and `/workflows`, which call external providers that cost money. Excess returns `429`.
+- **Structured access logging + request correlation.** A `requestContext` + `accessLog` middleware pair attaches an `X-Request-Id` (echoed in the response) and emits one JSON access-log line per request with method, path, status, and duration, so a single request can be traced across packages.
+- **Migration-on-boot.** `DatabaseClient.ensureSchema()` runs idempotent `CREATE TABLE IF NOT EXISTS` for all five tables on every boot, so a fresh Postgres actually starts the app instead of requiring a manual migration step.
+
+**Verified (ad-hoc harness, no Postgres needed):** config validation flags prod misconfig and stays clean for dev; rate limiter returns 429 past the ceiling; X-Request-Id is set on responses. Full `tsc -b` and `vite build` are green.
+
+**Still not done (flagged honestly):**
+- No automated test suite / CI yet — verification was ad-hoc scripts, not a committed suite.
+- No containerization (Dockerfile / docker-compose) — "deploy" is still manual.
+- `apps/web` runtime was never rendered in a real browser (no headless browser in sandbox); build/bundle correctness only.
+
